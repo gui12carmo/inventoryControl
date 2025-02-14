@@ -1,89 +1,93 @@
 package com.guilherme.inventorycontrol;
 
-import android.content.Intent;
+import androidx.appcompat.app.AppCompatActivity;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+import java.util.ArrayList;
 
 public class ProductListActivity extends AppCompatActivity {
 
-    private ProductDAO productDAO;
-    private ListView listView;
-    private SimpleCursorAdapter adapter;
-
-    // Mapeamento das colunas para as views do layout de item
-    final String[] fromColumns = {
-            InventoryDbHelper.COLUMN_PRODUCT_NAME,
-            InventoryDbHelper.COLUMN_PRODUCT_QUANTITY,
-            InventoryDbHelper.COLUMN_PRODUCT_PRICE
-    };
-    final int[] toViews = { R.id.tvProductName, R.id.tvQuantity, R.id.tvPrice };
+    ListView listViewProducts;
+    Button btnAddProduct, btnRefresh;
+    DatabaseHelper dbHelper;
+    ArrayList<Product> productList;
+    ProductAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
+        dbHelper = new DatabaseHelper(this);
 
-        listView = findViewById(R.id.listViewProducts);
-        productDAO = new ProductDAO(this);
-        productDAO.open();
+        listViewProducts = findViewById(R.id.listViewProducts);
+        btnAddProduct = findViewById(R.id.btnAddProduct);
+        btnRefresh = findViewById(R.id.btnRefresh);
+
+        productList = new ArrayList<>();
+        adapter = new ProductAdapter(this, productList);
+        listViewProducts.setAdapter(adapter);
 
         loadProducts();
 
-        // Ao clicar em um item, abrir a tela de edição
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        btnAddProduct.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Abre EditProductActivity passando o ID do produto
-                Intent intent = new Intent(ProductListActivity.this, EditProductActivity.class);
-                intent.putExtra("PRODUCT_ID", id);
-                startActivity(intent);
+            public void onClick(View view) {
+                try {
+                    startActivity(new Intent(ProductListActivity.this, AddProductActivity.class));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-        // Botão para adicionar novo produto (pode ser um FloatingActionButton)
-        findViewById(R.id.fabAddProduct).setOnClickListener(new View.OnClickListener() {
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent addIntent = new Intent(ProductListActivity.this, AddProductActivity.class);
-                startActivity(addIntent);
+            public void onClick(View view) {
+                try {
+                    loadProducts();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        // Clique no item para exibir uma mensagem com o nome do produto (pode ser expandido para editar/detalhar)
+        listViewProducts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Toast.makeText(ProductListActivity.this, "Produto: " + productList.get(position).getName(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void loadProducts() {
-        Cursor cursor = productDAO.getAllProducts();
-        if (cursor != null && cursor.getCount() > 0) {
-            adapter = new SimpleCursorAdapter(
-                    this,
-                    R.layout.list_item_product,
-                    cursor,
-                    fromColumns,
-                    toViews,
-                    0);
-            listView.setAdapter(adapter);
-        } else {
-            Toast.makeText(this, "Nenhum produto cadastrado!", Toast.LENGTH_SHORT).show();
+        productList.clear();
+        try {
+            Cursor cursor = dbHelper.getAllItems();
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COL_ITEM_ID));
+                    String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_ITEM_NOME));
+                    String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_ITEM_DESCRICAO));
+                    byte[] imageBytes = cursor.getBlob(cursor.getColumnIndex(DatabaseHelper.COL_ITEM_IMAGEM));
+                    Bitmap image = DatabaseHelper.getBitmapFromBytes(imageBytes);
+                    productList.add(new Product(id, name, description, image));
+                } while (cursor.moveToNext());
+            }
+            if(cursor != null){
+                cursor.close();
+            }
+            adapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Erro ao carregar produtos", Toast.LENGTH_SHORT).show();
         }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Reabre a conexão e atualiza a lista
-        productDAO.open();
-        loadProducts();
-    }
-
-    @Override
-    protected void onPause() {
-        productDAO.close();
-        super.onPause();
-    }
 }
-

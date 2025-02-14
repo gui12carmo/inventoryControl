@@ -1,44 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout para adicionar um produto -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <!-- Nome do produto -->
+    <EditText
+        android:id="@+id/etProductName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Nome do Produto"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
-        <EditText
-            android:id="@+id/etProductName"
-            android:hint="Nome do Produto"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <!-- Descrição do produto -->
+    <EditText
+        android:id="@+id/etProductDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Descrição do Produto"
+        app:layout_constraintTop_toBottomOf="@id/etProductName"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp"/>
 
-        <EditText
-            android:id="@+id/etQuantity"
-            android:hint="Quantidade"
-            android:inputType="number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <!-- Imagem do produto -->
+    <ImageView
+        android:id="@+id/ivProductImage"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/ic_default_image"
+        app:layout_constraintTop_toBottomOf="@id/etProductDescription"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="16dp"/>
 
-        <EditText
-            android:id="@+id/etPrice"
-            android:hint="Preço"
-            android:inputType="numberDecimal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <!-- Botão para selecionar imagem -->
+    <Button
+        android:id="@+id/btnSelectImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selecionar Imagem"
+        app:layout_constraintTop_toBottomOf="@id/ivProductImage"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="16dp"/>
 
-        <!-- Se desejar, adicione um Spinner para escolher a categoria -->
+    <!-- Botão para adicionar produto -->
+    <Button
+        android:id="@+id/btnAddProduct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adicionar Produto"
+        app:layout_constraintTop_toBottomOf="@id/btnSelectImage"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="16dp"/>
 
-        <Button
-            android:id="@+id/btnSave"
-            android:text="Salvar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_gravity="center_horizontal" />
+    <!-- Botão para voltar -->
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voltar"
+        app:layout_constraintTop_toBottomOf="@id/btnAddProduct"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="16dp"/>
 
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

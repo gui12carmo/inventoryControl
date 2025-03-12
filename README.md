@@ -1,8 +1,5 @@
 # APP inventory control
 
-## :camera_flash: Screenshots
-
-
 ## Tecnologias
 ![Java](https://img.shields.io/badge/Java-%23ED8B00.svg?logo=openjdk&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=white)
